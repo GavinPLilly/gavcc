@@ -15,8 +15,8 @@ struct Token {
 
 class Scanner {
     const std::string chars;
-    int token_start = 0;
-    int token_end = 0;
+    std::vector<Token> tokens;
+    int cur = 0;
 
 public:
     Scanner(std::string chars):
@@ -26,8 +26,8 @@ public:
 
     std::vector<Token> scan()
     {
-        std::vector<Token> tokens;
-        for(auto c : chars) {
+        while(cur < chars.size()) {
+            char c = chars[cur];
             if(c >= '0' && c <= '9') {
                 tokens.push_back({ TokenType::integer, c - '0' });
             }
@@ -37,6 +37,7 @@ public:
             else if(c == '=') {
                 tokens.push_back({ TokenType::equals });
             }
+            ++cur;
         }
         return tokens;
     }
