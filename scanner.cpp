@@ -27,9 +27,9 @@ public:
     std::vector<Token> scan()
     {
         while(cur < chars.size()) {
-            char c = chars[cur];
+            char c = get_char();
             if(c >= '0' && c <= '9') {
-                tokens.push_back({ TokenType::integer, c - '0' });
+                parse_number();
             }
             else if(c == '+') {
                 tokens.push_back({ TokenType::plus});
@@ -37,7 +37,7 @@ public:
             else if(c == '=') {
                 tokens.push_back({ TokenType::equals });
             }
-            ++cur;
+            next();
         }
         return tokens;
     }
@@ -59,6 +59,20 @@ public:
             }
         }
         std::cout << s << std::endl;
+    }
+
+private:
+    char get_char() {
+        return chars[cur];
+    }
+
+    void next() {
+        ++cur;
+    }
+
+    void parse_number() {
+        auto c = get_char();
+        tokens.push_back({ TokenType::integer, c - '0' });
     }
 
 };
