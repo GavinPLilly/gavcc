@@ -37,6 +37,9 @@ public:
             else if(c == '=') {
                 tokens.push_back({ TokenType::equals });
             }
+            else if(is_whitespace(c)) {
+                ;
+            }
             next();
         }
         return tokens;
@@ -71,8 +74,19 @@ private:
     }
 
     void parse_number() {
-        auto c = get_char();
+        char c = get_char();
         tokens.push_back({ TokenType::integer, c - '0' });
+    }
+
+    bool is_whitespace(char c) {
+        switch(c) {
+            case ' ':
+            case '\n':
+            case '\t':
+                return true;
+            default:
+                return false;
+        }
     }
 
 };
