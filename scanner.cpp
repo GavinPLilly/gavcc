@@ -1,6 +1,8 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <string_view>
+#include <charconv>
 
 enum class TokenType {
     integer,
@@ -16,7 +18,7 @@ struct Token {
 class Scanner {
     const std::string chars;
     std::vector<Token> tokens;
-    int cur = 0;
+    int idx = 0;
 
 public:
     Scanner(std::string chars):
@@ -26,21 +28,25 @@ public:
 
     std::vector<Token> scan()
     {
-        while(cur < chars.size()) {
-            char c = get_char();
-            if(c >= '0' && c <= '9') {
+        while(idx < chars.size()) {
+            char c = cur();
+            if(is_digit(c)) {
                 parse_number();
             }
             else if(c == '+') {
                 tokens.push_back({ TokenType::plus});
+                c = next();
             }
             else if(c == '=') {
                 tokens.push_back({ TokenType::equals });
+                c = next();
             }
             else if(is_whitespace(c)) {
-                ;
+                c = next();
             }
-            next();
+            else {
+                c = next();
+            }
         }
         return tokens;
     }
@@ -65,17 +71,30 @@ public:
     }
 
 private:
-    char get_char() {
-        return chars[cur];
+    char cur() {
+        return chars[idx];
     }
 
-    void next() {
-        ++cur;
+    char next() {
+        ++idx;
+        if(idx < chars.size()) {
+            return cur();
+        }
+        return ' ';
     }
 
     void parse_number() {
-        char c = get_char();
-        tokens.push_back({ TokenType::integer, c - '0' });
+        int start = idx;
+        int end = idx;
+        char c = cur();
+        while(is_digit(c)) {
+            ++end;
+            c = next();
+        }
+        std::string_view number_src(chars.begin() + start, chars.begin() + end);
+        int value;
+        std::from_chars(number_src.begin(), number_src.end(), value);
+        tokens.push_back({ TokenType::integer, value });
     }
 
     bool is_whitespace(char c) {
@@ -87,6 +106,10 @@ private:
             default:
                 return false;
         }
+    }
+
+    bool is_digit(char c) {
+        return c >= '0' && c <= '9';
     }
 
 };
