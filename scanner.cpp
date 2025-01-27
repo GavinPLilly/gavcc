@@ -88,6 +88,13 @@ private:
         return cur();
     }
 
+    char peek() {
+        if(idx + 1 < chars.size()) {
+            return chars[idx + 1];
+        }
+        return EOF;
+    }
+
     void parse_identifier() {
         int start = idx;
         int end = idx;
