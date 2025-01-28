@@ -34,7 +34,19 @@ private:
         Node* left;
         Node* op;
         Node* right;
-        Token t;
+        Token t = cur();
+
+        if(t.type == TokenType::lparen) {
+            next();
+            Node* result = parse_expr();
+            t = cur();
+            if(t.type != TokenType::rparen) {
+                std::cout << "Expected closing paren ')'" << std::endl;
+                exit(1);
+            }
+            next();
+            return result;
+        }
 
         left = parse_term();
 

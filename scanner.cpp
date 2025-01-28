@@ -6,12 +6,13 @@
 
 enum class TokenType {
     identifier,
+    lparen,
+    rparen,
     integer,
     plus,
     minus,
     star,
     div,
-    equal,
     eof,
 };
 
@@ -45,6 +46,14 @@ public:
             else if(is_digit(c)) {
                 parse_number();
             }
+            else if(c == '(') {
+                tokens.push_back({ TokenType::lparen });
+                next();
+            }
+            else if(c == ')') {
+                tokens.push_back({ TokenType::rparen });
+                next();
+            }
             else if(c == '+') {
                 tokens.push_back({ TokenType::plus });
                 next();
@@ -59,10 +68,6 @@ public:
             }
             else if(c == '/') {
                 tokens.push_back({ TokenType::div });
-                next();
-            }
-            else if(c == '=') {
-                tokens.push_back({ TokenType::equal });
                 next();
             }
             else if(c == EOF) {
@@ -169,9 +174,6 @@ void print_tokens(std::vector<Token> tokens)
                 break;
             case TokenType::div:
                 s += '/';
-                break;
-            case TokenType::equal:
-                s += '=';
                 break;
             case TokenType::eof:
                 s += "EOF";
