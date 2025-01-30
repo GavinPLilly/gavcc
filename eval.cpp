@@ -20,7 +20,7 @@ private:
         }
         i64 left = eval_node(cur->left);
         i64 right = eval_node(cur->right);
-        auto type = cur->token.type;
+        TokenType type = cur->token.type;
         if(type == tt::plus) {
             return left + right;
         }

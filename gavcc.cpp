@@ -10,12 +10,12 @@ std::string node_type_string(NodeType type);
 
 int main(int argc, char** argv)
 {
-    std::string s = "(1 + 5) * 5";
+    std::string s = "2 - 4 + 2";
     std::cout << s << std::endl;
 
     Scanner scanner(s);
     std::vector<Token> tokens = scanner.scan();
-    print_tokens(tokens);
+    std::cout << tokens_to_string(tokens) << std::endl;
 
     Parser parser(tokens);
     Node* ast = parser.parse();
@@ -33,8 +33,13 @@ std::string ast_node_string(Node* ast) {
         return "nullptr";
     }
     std::string s;
-    s += "(Type: " + node_type_string(ast->type) + " Left: " + ast_node_string(ast->left) + " Right: " + ast_node_string(ast->right) + ")";
-    return s;
+    if(ast->type == NodeType::lit) {
+        return std::to_string(ast->token.ival);
+    }
+    if(ast->type == NodeType::op) {
+        return "(" + token_to_string(ast->token) + " Left: " + ast_node_string(ast->left) + " Right: " + ast_node_string(ast->right) + ")";
+    }
+    return "[xxx]";
 }
 
 std::string node_type_string(NodeType type) {

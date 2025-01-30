@@ -4,6 +4,8 @@
 #include <string_view>
 #include <charconv>
 
+#include "gavcc.h"
+
 enum class TokenType {
     identifier,
     lparen,
@@ -28,13 +30,9 @@ class Scanner {
     int idx = 0;
 
 public:
-    Scanner(std::string chars):
-        chars(chars)
-    {
-    }
+    Scanner(std::string chars): chars(chars) {}
 
-    std::vector<Token> scan()
-    {
+    std::vector<Token> scan() {
         while(idx < chars.size()) {
             char c = cur();
             if(is_whitespace(c)) {
@@ -151,38 +149,48 @@ private:
 
 };
 
-void print_tokens(std::vector<Token> tokens)
-{
+std::string tokens_to_string(std::vector<Token> tokens) {
     std::string s;
     for(auto token : tokens) {
-        s += "(";
-        switch(token.type) {
-            case TokenType::identifier:
-                s += "ident";
-                break;
-            case TokenType::integer:
-                s += "int";
-                break;
-            case TokenType::plus:
-                s += '+';
-                break;
-            case TokenType::minus:
-                s += '-';
-                break;
-            case TokenType::star:
-                s += '*';
-                break;
-            case TokenType::div:
-                s += '/';
-                break;
-            case TokenType::eof:
-                s += "EOF";
-                break;
-            default:
-                s += "[X]";
-                break;
-        }
-        s += ") ";
+        s += token_to_string(token);
     }
-    std::cout << s << std::endl;
+    return s;
+}
+
+std::string token_to_string(Token token) {
+    std::string s;
+    switch(token.type) {
+        case TokenType::identifier:
+            s += "ident";
+            break;
+        case TokenType::lparen:
+            s += "(";
+            break;
+        case TokenType::rparen:
+            s += ")";
+            break;
+        case TokenType::integer:
+            s += "int";
+            break;
+        case TokenType::plus:
+            s += '+';
+            break;
+        case TokenType::minus:
+            s += '-';
+            break;
+        case TokenType::star:
+            s += '*';
+            break;
+        case TokenType::div:
+            s += '/';
+            break;
+        case TokenType::eof:
+            s += "EOF";
+            break;
+        default:
+            s += "[X]";
+            break;
+    }
+    s += " ";
+    return s;
 }

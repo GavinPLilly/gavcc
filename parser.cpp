@@ -13,17 +13,29 @@ struct Node {
     Token token;
     Node* left;
     Node* right;
+    std::vector<token> items
 };
+
+using tt = TokenType;
+
+[[noreturn]]
+void report_parse_error(std::string msg, Token token) {
+    std::cout << msg << std::endl;
+    exit(1);
+}
+
+[[noreturn]]
+void expected_but_found(std::string expected, Token found) {
+    std::cout << "Expected " << expected << ", but found " << token_to_string(found);
+    exit(2);
+}
 
 class Parser {
     const std::vector<Token> tokens;
     int idx = 0;
 
 public:
-    Parser(std::vector<Token> tokens):
-        tokens(tokens)
-    {
-    }
+    Parser(std::vector<Token> tokens): tokens(tokens) {}
 
     Node* parse() {
         return parse_expr();
@@ -34,37 +46,23 @@ private:
         Node* left;
         Node* op;
         Node* right;
-        Token t = cur();
-
-        if(t.type == TokenType::lparen) {
-            next();
-            Node* result = parse_expr();
-            t = cur();
-            if(t.type != TokenType::rparen) {
-                std::cout << "Expected closing paren ')'" << std::endl;
-                exit(1);
-            }
-            next();
-            return result;
-        }
 
         left = parse_term();
-
-        t = cur();
-        if(t.type == TokenType::eof || !(t.type == TokenType::plus || t.type == TokenType::minus)) {
+        if(cur().type == tt::eof) {
             return left;
         }
-        op = new Node;
-        op->type = NodeType::op;
-        op->token = t;
-        next();
-
-        t = cur();
-        if(t.type == TokenType::eof) {
-            std::cout << "Expected term" << std::endl;
-            exit(1);
+        if(cur().type != tt::plus && cur().type != tt::minus) {
+            return left;
         }
 
+        op = new Node;
+        op->type = NodeType::op;
+        op->token = cur();
+        next();
+
+        if(cur().type == tt::eof) {
+            expected_but_found("expr", cur());
+        }
         right = parse_expr();
 
         op->left = left;
@@ -76,26 +74,24 @@ private:
         Node* left;
         Node* op;
         Node* right;
-        Token t;
 
-        left = parse_lit();
+        left = parse_unit();
 
-        t = cur();
-        if(t.type == TokenType::eof || !(t.type == TokenType::star || t.type == TokenType::div)) {
+        if(cur().type == tt::eof) {
+            return left;
+        }
+        if(cur().type != tt::star && cur().type != tt::div) {
             return left;
         }
 
         op = new Node;
         op->type = NodeType::op;
-        op->token = t;
+        op->token = cur();
         next();
 
-        t = cur();
-        if(t.type == TokenType::eof) {
-            std::cout << "Expected term" << std::endl;
-            exit(1);
+        if(cur().type == tt::eof) {
+            expected_but_found("term", cur());
         }
-
         right = parse_term();
 
         op->left = left;
@@ -103,11 +99,26 @@ private:
         return op;
     }
 
+    Node* parse_unit() {
+        if(cur().type != tt::lparen) {
+            return parse_lit();
+        }
+
+        next();
+        Node* result = parse_expr();
+
+        if(cur().type != tt::rparen) {
+            expected_but_found("right parenthesis", cur());
+        }
+        next();
+
+        return result;
+    }
+
     Node* parse_lit() {
         Token t = cur();
         if(t.type != TokenType::integer) {
-            std::cout << "Expected literal" << std::endl;
-            exit(1);
+            expected_but_found("literal", cur());
         }
         Node* result = new Node;
         result->type = NodeType::lit;
