@@ -13,7 +13,6 @@ struct Node {
     Token token;
     Node* left;
     Node* right;
-    std::vector<token> items
 };
 
 using tt = TokenType;
@@ -39,64 +38,54 @@ public:
 
     Node* parse() {
         return parse_expr();
+        if(cur().type != tt::eof) {
+            expected_but_found("eof", cur());
+        }
     }
 
 private:
     Node* parse_expr() {
-        Node* left;
-        Node* op;
-        Node* right;
+        Node* expr_root = parse_term();
 
-        left = parse_term();
-        if(cur().type == tt::eof) {
-            return left;
+        while(cur().type != tt::eof && (cur().type == tt::plus || cur().type == tt::minus)) {
+            Node* op = new Node;
+            op->type = NodeType::op;
+            op->token = cur();
+            next();
+
+            if(cur().type == tt::eof) {
+                expected_but_found("term", cur());
+            }
+            Node * right = parse_term();
+
+            op->left = expr_root;
+            op->right = right;
+            expr_root = op;
         }
-        if(cur().type != tt::plus && cur().type != tt::minus) {
-            return left;
-        }
 
-        op = new Node;
-        op->type = NodeType::op;
-        op->token = cur();
-        next();
-
-        if(cur().type == tt::eof) {
-            expected_but_found("expr", cur());
-        }
-        right = parse_expr();
-
-        op->left = left;
-        op->right = right;
-        return op;
+        return expr_root;
     }
 
     Node* parse_term() {
-        Node* left;
-        Node* op;
-        Node* right;
+        Node* term_root = parse_unit();
+        
+        while(cur().type != tt::eof && (cur().type == tt::star || cur().type == tt::div)) {
+            Node* op = new Node;
+            op->type = NodeType::op;
+            op->token = cur();
+            next();
 
-        left = parse_unit();
+            if(cur().type == tt::eof) {
+                expected_but_found("unit", cur());
+            }
+            Node* right = parse_unit();
 
-        if(cur().type == tt::eof) {
-            return left;
+            op->left = term_root;
+            op->right = right;
+            term_root = op;
         }
-        if(cur().type != tt::star && cur().type != tt::div) {
-            return left;
-        }
 
-        op = new Node;
-        op->type = NodeType::op;
-        op->token = cur();
-        next();
-
-        if(cur().type == tt::eof) {
-            expected_but_found("term", cur());
-        }
-        right = parse_term();
-
-        op->left = left;
-        op->right = right;
-        return op;
+        return term_root;
     }
 
     Node* parse_unit() {

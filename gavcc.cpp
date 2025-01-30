@@ -6,11 +6,13 @@
 #include "eval.cpp"
 
 std::string ast_node_string(Node* ast);
+std::string ast_node_string_verbose(Node* ast);
 std::string node_type_string(NodeType type);
 
 int main(int argc, char** argv)
 {
-    std::string s = "2 - 4 + 2";
+    std::string s = "3 / (4 + 5)";
+
     std::cout << s << std::endl;
 
     Scanner scanner(s);
@@ -40,6 +42,14 @@ std::string ast_node_string(Node* ast) {
         return "(" + token_to_string(ast->token) + " Left: " + ast_node_string(ast->left) + " Right: " + ast_node_string(ast->right) + ")";
     }
     return "[xxx]";
+}
+
+std::string ast_node_string_verbose(Node* ast) {
+    if(ast == nullptr) {
+        return "nullptr";
+    }
+    std::string s;
+    return "(Node Type: " + token_to_string(ast->token) + " Left: " + ast_node_string_verbose(ast->left) + " Right: " + ast_node_string_verbose(ast->right) + ")";
 }
 
 std::string node_type_string(NodeType type) {
