@@ -1,0 +1,9 @@
+Grammar
+-------
+Program: Stmt* EOF
+Stmt: Type ID ";"
+      ID "=" Expr ";"
+      "return" Expr ";"
+Expr: Term ("+" Term)*
+Term: Unit ("*" Unit)*
+      Lit

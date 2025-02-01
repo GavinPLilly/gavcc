@@ -4,17 +4,25 @@
 #include "gavcc.h"
 
 enum class NodeType {
-    lit,
+    prgm,
+    stmt_decl,
+    stmt_assn,
+    stmt_return,
     op,
+    lit,
 };
 
 struct Node {
     NodeType type;
     Token token;
+    std::vector<Node*> stmts;
+    Token id;
+    Node* expr;
     Node* left;
     Node* right;
 };
 
+using nt = NodeType;
 using tt = TokenType;
 
 [[noreturn]]
@@ -37,19 +45,89 @@ public:
     Parser(std::vector<Token> tokens): tokens(tokens) {}
 
     Node* parse() {
-        return parse_expr();
+        Node* prgm_root = new Node;
+        prgm_root->type = nt::prgm;
+
+        while(cur().type != tt::eof) {
+            prgm_root->stmts.push_back(parse_stmt());
+        }
+
         if(cur().type != tt::eof) {
             expected_but_found("eof", cur());
         }
+
+        return prgm_root;
     }
 
 private:
+    Node* parse_stmt() {
+        if(cur().type == tt::kw_int) {
+            return parse_stmt_decl();
+        }
+        else if(cur().type == tt::id) {
+            return parse_stmt_assn();
+        }
+        else if(cur().type == tt::kw_return) {
+            return parse_stmt_return();
+        }
+        if(cur().type != tt::semicolon) {
+            expected_but_found(";", cur());
+        }
+        expected_but_found("Stmt", cur());
+    }
+
+    Node* parse_stmt_decl() {
+        if(cur().type != tt::kw_int) {
+            expected_but_found("kw_int", cur());
+        }
+        next();
+
+        Node* decl_root = new Node;
+        decl_root->type = nt::stmt_decl;
+        if(cur().type != tt::id) {
+            expected_but_found("id", cur());
+        }
+        decl_root->id = cur();
+        decl_root->expr = parse_expr();
+        return decl_root;
+    }
+
+    Node* parse_stmt_assn() {
+        if(cur().type != tt::id) {
+            expected_but_found("id", cur());
+        }
+        Node* assn_root = new Node;
+        assn_root->type = nt::stmt_assn;
+        assn_root->id = cur();
+        next();
+
+        if(cur().type != tt::equal) {
+            expected_but_found("=", cur());
+        }
+        next();
+
+        assn_root->expr = parse_expr();
+        return assn_root;
+    }
+
+    Node* parse_stmt_return() {
+        if(cur().type != tt::kw_return) {
+            expected_but_found("kw_return", cur());
+        }
+        next();
+
+        Node* return_root = new Node;
+        return_root->type = nt::stmt_return;
+        return_root->expr = parse_expr();
+        return return_root;
+    }
+
     Node* parse_expr() {
         Node* expr_root = parse_term();
 
         while(cur().type != tt::eof && (cur().type == tt::plus || cur().type == tt::minus)) {
             Node* op = new Node;
-            op->type = NodeType::op;
+            op->type = nt::op;
             op->token = cur();
             next();
 
@@ -71,7 +149,7 @@ private:
         
         while(cur().type != tt::eof && (cur().type == tt::star || cur().type == tt::div)) {
             Node* op = new Node;
-            op->type = NodeType::op;
+            op->type = nt::op;
             op->token = cur();
             next();
 
@@ -110,7 +188,7 @@ private:
             expected_but_found("literal", cur());
         }
         Node* result = new Node;
-        result->type = NodeType::lit;
+        result->type = nt::lit;
         result->token = t;
         next();
         return result;

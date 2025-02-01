@@ -7,14 +7,22 @@
 #include "gavcc.h"
 
 enum class TokenType {
-    identifier,
+    // Keywords
+    kw_int,
+    kw_return,
+    // Literals
+    id,
+    integer,
+    // Grouping
     lparen,
     rparen,
-    integer,
+    // Symbols
     plus,
     minus,
     star,
     div,
+    equal,
+    semicolon,
     eof,
 };
 
@@ -23,6 +31,8 @@ struct Token {
     int64_t ival;
     std::string id_name;
 };
+
+using tt = TokenType;
 
 class Scanner {
     const std::string chars;
@@ -39,37 +49,44 @@ public:
                 next();
             }
             else if(is_id_start(c)) {
-                parse_identifier();
+                scan_id();
             }
             else if(is_digit(c)) {
-                parse_number();
+                scan_number();
             }
             else if(c == '(') {
-                tokens.push_back({ TokenType::lparen });
+                tokens.push_back({ tt::lparen });
                 next();
             }
             else if(c == ')') {
-                tokens.push_back({ TokenType::rparen });
+                tokens.push_back({ tt::rparen });
                 next();
             }
             else if(c == '+') {
-                tokens.push_back({ TokenType::plus });
+                tokens.push_back({ tt::plus });
                 next();
             }
             else if(c == '-') {
-                tokens.push_back({ TokenType::minus });
+                tokens.push_back({ tt::minus });
                 next();
             }
             else if(c == '*') {
-                tokens.push_back({ TokenType::star });
+                tokens.push_back({ tt::star });
                 next();
             }
             else if(c == '/') {
-                tokens.push_back({ TokenType::div });
+                tokens.push_back({ tt::div });
+                next();
+            }
+            else if(c == '=') {
+                tokens.push_back({ tt::equal });
+            }
+            else if(c == ';') {
+                tokens.push_back({ tt::semicolon });
                 next();
             }
             else if(c == EOF) {
-                tokens.push_back({ TokenType::eof });
+                tokens.push_back({ tt::eof });
             }
             else {
                 next();
@@ -98,7 +115,7 @@ private:
         return EOF;
     }
 
-    void parse_identifier() {
+    void scan_id() {
         int start = idx;
         int end = idx;
         char c = cur();
@@ -106,11 +123,16 @@ private:
             ++end;
             c = next();
         }
-        tokens.push_back({ .type = TokenType::identifier,
-            .id_name = std::string(&chars[start], end - start) });
+        std::string id_text(&chars[start], end - start);
+        if(is_kw(id_text)) {
+            tokens.push_back(scan_kw(id_text));
+        }
+        else {
+            tokens.push_back({ .type = tt::id, .id_name = id_text });
+        }
     }
 
-    void parse_number() {
+    void scan_number() {
         int start = idx;
         int end = idx;
         char c = cur();
@@ -121,7 +143,7 @@ private:
         std::string_view number_src(chars.begin() + start, chars.begin() + end);
         int value;
         std::from_chars(number_src.begin(), number_src.end(), value);
-        tokens.push_back({ .type = TokenType::integer, .ival = value });
+        tokens.push_back({ .type = tt::integer, .ival = value });
     }
 
     bool is_whitespace(char c) {
@@ -147,6 +169,20 @@ private:
         return c >= '0' && c <= '9';
     }
 
+    bool is_kw(std::string id_text) {
+        if(id_text == "int") {
+            return true;
+        }
+        if(id_text == "return") {
+            return true;
+        }
+        return false;
+    }
+
+    Token scan_kw(std::string id_text) {
+        return { .type = tt::kw_int };
+    }
+
 };
 
 std::string tokens_to_string(std::vector<Token> tokens) {
@@ -160,31 +196,40 @@ std::string tokens_to_string(std::vector<Token> tokens) {
 std::string token_to_string(Token token) {
     std::string s;
     switch(token.type) {
-        case TokenType::identifier:
-            s += "ident";
+        case tt::kw_int:
+            s += "kw:int";
             break;
-        case TokenType::lparen:
+        case tt::id:
+            s += "id";
+            break;
+        case tt::lparen:
             s += "(";
             break;
-        case TokenType::rparen:
+        case tt::rparen:
             s += ")";
             break;
-        case TokenType::integer:
+        case tt::integer:
             s += "int";
             break;
-        case TokenType::plus:
+        case tt::plus:
             s += '+';
             break;
-        case TokenType::minus:
+        case tt::minus:
             s += '-';
             break;
-        case TokenType::star:
+        case tt::star:
             s += '*';
             break;
-        case TokenType::div:
+        case tt::div:
             s += '/';
             break;
-        case TokenType::eof:
+        case tt::equal:
+            s += '=';
+            break;
+        case tt::semicolon:
+            s += ';';
+            break;
+        case tt::eof:
             s += "EOF";
             break;
         default:

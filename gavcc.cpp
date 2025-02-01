@@ -11,7 +11,7 @@ std::string node_type_string(NodeType type);
 
 int main(int argc, char** argv)
 {
-    std::string s = "3 / (4 + 5)";
+    std::string s = "int a";
 
     std::cout << s << std::endl;
 
