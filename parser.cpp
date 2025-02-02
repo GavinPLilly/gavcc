@@ -1,26 +1,4 @@
-#include <string>
-#include <vector>
-
 #include "gavcc.h"
-
-enum class NodeType {
-    prgm,
-    stmt_decl,
-    stmt_assn,
-    stmt_return,
-    op,
-    lit,
-};
-
-struct Node {
-    NodeType type;
-    Token token;
-    std::vector<Node*> stmts;
-    Token id;
-    Node* expr;
-    Node* left;
-    Node* right;
-};
 
 using nt = NodeType;
 using tt = TokenType;
@@ -33,8 +11,20 @@ void report_parse_error(std::string msg, Token token) {
 
 [[noreturn]]
 void expected_but_found(std::string expected, Token found) {
-    std::cout << "Expected " << expected << ", but found " << token_to_string(found);
+    std::cout << "Expected " << expected << ", but found " << to_string::token(found);
     exit(2);
+}
+
+[[noreturn]]
+void expected_but_found(tt expected_type, Token found) {
+    std::cout << "Expected " << to_string::token_type(expected_type) << ", but found " << to_string::token(found);
+    exit(3);
+}
+
+void check_for(tt expected_type, Token token) {
+    if(token.type != expected_type) {
+        expected_but_found(expected_type, token);
+    }
 }
 
 class Parser {
@@ -184,21 +174,25 @@ private:
 
     Node* parse_lit() {
         Token t = cur();
-        if(t.type != TokenType::integer) {
-            expected_but_found("literal", cur());
+        if(t.type == tt::integer) {
+            Node* result = new Node;
+            result->type = nt::lit;
+            result->token = t;
+            next();
+            return result;
         }
-        Node* result = new Node;
-        result->type = nt::lit;
-        result->token = t;
-        next();
-        return result;
+        if(t.type == tt::id) {
+            Node* result = new Node;
+            result->type = nt::lit;
+        }
+        expected_but_found("literal", cur());
     }
 
     Token cur() {
         if(idx < tokens.size()) {
             return tokens[idx];
         }
-        return { .type = TokenType::eof };
+        return { .type = tt::eof };
     }
 
     Token next() {
@@ -219,25 +213,3 @@ private:
 
 };
 
-std::string op_str(TokenType type) {
-    if(type == TokenType::plus) {
-        return "+";
-    }
-    if(type == TokenType::star) {
-        return "*";
-    }
-    return "UNKNOWN OP";
-}
-
-void print_ast(Node* root) {
-    auto left = ((root->left)->token).ival;
-    TokenType op = (root->token).type;
-    auto right = ((root->right)->token).ival;
-
-    std::string s;
-    s += std::to_string(left);
-    s += op_str(op);
-    s += std::to_string(right);
-
-    std::cout << s << std::endl;
-}

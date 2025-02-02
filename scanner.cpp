@@ -1,36 +1,8 @@
 #include <iostream>
-#include <vector>
-#include <string>
 #include <string_view>
 #include <charconv>
 
 #include "gavcc.h"
-
-enum class TokenType {
-    // Keywords
-    kw_int,
-    kw_return,
-    // Literals
-    id,
-    integer,
-    // Grouping
-    lparen,
-    rparen,
-    // Symbols
-    plus,
-    minus,
-    star,
-    div,
-    equal,
-    semicolon,
-    eof,
-};
-
-struct Token {
-    TokenType type;
-    int64_t ival;
-    std::string id_name;
-};
 
 using tt = TokenType;
 
@@ -184,58 +156,3 @@ private:
     }
 
 };
-
-std::string tokens_to_string(std::vector<Token> tokens) {
-    std::string s;
-    for(auto token : tokens) {
-        s += token_to_string(token);
-    }
-    return s;
-}
-
-std::string token_to_string(Token token) {
-    std::string s;
-    switch(token.type) {
-        case tt::kw_int:
-            s += "kw:int";
-            break;
-        case tt::id:
-            s += "id";
-            break;
-        case tt::lparen:
-            s += "(";
-            break;
-        case tt::rparen:
-            s += ")";
-            break;
-        case tt::integer:
-            s += "int";
-            break;
-        case tt::plus:
-            s += '+';
-            break;
-        case tt::minus:
-            s += '-';
-            break;
-        case tt::star:
-            s += '*';
-            break;
-        case tt::div:
-            s += '/';
-            break;
-        case tt::equal:
-            s += '=';
-            break;
-        case tt::semicolon:
-            s += ';';
-            break;
-        case tt::eof:
-            s += "EOF";
-            break;
-        default:
-            s += "[X]";
-            break;
-    }
-    s += " ";
-    return s;
-}

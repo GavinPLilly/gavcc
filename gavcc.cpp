@@ -1,63 +1,34 @@
+#include "gavcc.h"
 #include <iostream>
-#include <string>
 
 #include "scanner.cpp"
 #include "parser.cpp"
 #include "eval.cpp"
 
-std::string ast_node_string(Node* ast);
-std::string ast_node_string_verbose(Node* ast);
-std::string node_type_string(NodeType type);
+string ast_node_string(Node* ast);
+string ast_node_string_verbose(Node* ast);
+string node_type_string(NodeType type);
+
+using std::cout;
+using std::endl;
 
 int main(int argc, char** argv)
 {
-    std::string s = "int a";
+    string s = "int a;";
 
-    std::cout << s << std::endl;
+    cout << s << endl;
 
     Scanner scanner(s);
-    std::vector<Token> tokens = scanner.scan();
-    std::cout << tokens_to_string(tokens) << std::endl;
+    vector<Token> tokens = scanner.scan();
+    cout << to_string::tokens(tokens) << endl;
 
     Parser parser(tokens);
     Node* ast = parser.parse();
-    std::cout << ast_node_string(ast) << std::endl;
+    cout << to_string::node(ast) << endl;
 
-    Eval eval(ast);
-    int64_t result = eval.eval();
-    std::cout << result << std::endl;
+    // Eval eval(ast);
+    // int64_t result = eval.eval();
+    // cout << result << endl;
 
     return 0;
-}
-
-std::string ast_node_string(Node* ast) {
-    if(ast == nullptr) {
-        return "nullptr";
-    }
-    std::string s;
-    if(ast->type == NodeType::lit) {
-        return std::to_string(ast->token.ival);
-    }
-    if(ast->type == NodeType::op) {
-        return "(" + token_to_string(ast->token) + " Left: " + ast_node_string(ast->left) + " Right: " + ast_node_string(ast->right) + ")";
-    }
-    return "[xxx]";
-}
-
-std::string ast_node_string_verbose(Node* ast) {
-    if(ast == nullptr) {
-        return "nullptr";
-    }
-    std::string s;
-    return "(Node Type: " + token_to_string(ast->token) + " Left: " + ast_node_string_verbose(ast->left) + " Right: " + ast_node_string_verbose(ast->right) + ")";
-}
-
-std::string node_type_string(NodeType type) {
-    if(type == NodeType::lit) {
-        return "lit";
-    }
-    if(type == NodeType::op) {
-        return "op";
-    }
-    return "[X]";
 }
