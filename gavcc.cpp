@@ -14,7 +14,7 @@ using std::endl;
 
 int main(int argc, char** argv)
 {
-    string s = "int a;";
+    string s = "int a; int b; int c; a = 12; b = 12 * a; return b; return a;";
 
     cout << s << endl;
 
@@ -26,9 +26,8 @@ int main(int argc, char** argv)
     Node* ast = parser.parse();
     cout << to_string::node(ast) << endl;
 
-    // Eval eval(ast);
-    // int64_t result = eval.eval();
-    // cout << result << endl;
+    Eval eval(ast);
+    eval.eval();
 
     return 0;
 }

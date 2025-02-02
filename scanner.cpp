@@ -52,6 +52,7 @@ public:
             }
             else if(c == '=') {
                 tokens.push_back({ tt::equal });
+                next();
             }
             else if(c == ';') {
                 tokens.push_back({ tt::semicolon });
@@ -59,6 +60,7 @@ public:
             }
             else if(c == EOF) {
                 tokens.push_back({ tt::eof });
+                next();
             }
             else {
                 next();
@@ -152,7 +154,13 @@ private:
     }
 
     Token scan_kw(std::string id_text) {
-        return { .type = tt::kw_int };
+        if(id_text == "int") {
+            return { .type = tt::kw_int };
+        }
+        if(id_text == "return") {
+            return { .type = tt::kw_return };
+        }
+        exit(5);
     }
 
 };

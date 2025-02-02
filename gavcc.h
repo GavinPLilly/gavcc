@@ -37,7 +37,8 @@ enum class NodeType {
     stmt_assn,
     stmt_return,
     op,
-    lit,
+    lit_int,
+    lit_id,
 };
 
 struct Node {
@@ -75,6 +76,9 @@ namespace to_string {
         switch(type) {
             case TokenType::kw_int:
                 s += "kw:int";
+                break;
+            case TokenType::kw_return:
+                s += "kw:return";
                 break;
             case TokenType::id:
                 s += "id";
@@ -129,16 +133,20 @@ namespace to_string {
         else if(node->type == NodeType::stmt_decl) {
             s += indent + "stmt_decl:\n";
             indent += "    ";
-            s += indent + "name: " + node->token.id_name + "\n";
+            s += indent + "name: " + node->id.id_name + "\n";
         }
         else if(node->type == NodeType::stmt_assn) {
             s += indent + "stmt_assn:\n";
             indent += "    ";
-            s += indent + "name: " + node->token.id_name + "\n";
+            s += indent + "name: " + node->id.id_name + "\n";
+            s += indent  + "expr:\n";
+            indent += "    ";
             s += to_string::node(node->expr, indent);
         }
         else if(node->type == NodeType::stmt_return) {
             s += indent + "stmt_return:\n";
+            indent += "    ";
+            s += indent + "expr:\n";
             indent += "    ";
             s += to_string::node(node->expr, indent);
         }
@@ -149,10 +157,11 @@ namespace to_string {
             s += to_string::node(node->left, indent);
             s += to_string::node(node->right, indent);
         }
-        else if(node->type == NodeType::lit) {
-            s += indent + "lit:\n";
-            indent += "    ";
-            s += node->token.ival;
+        else if(node->type == NodeType::lit_int) {
+            s += indent + "lit_int: " + std::to_string(node->token.ival) + "\n";
+        }
+        else if(node->type == NodeType::lit_id) {
+            s += indent + "lit_id: " + to_string::token(node->token) + "\n";
         }
         return s;
     }
