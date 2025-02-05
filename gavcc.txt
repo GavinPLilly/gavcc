@@ -1,3 +1,13 @@
+Next Steps
+----------
+parse_lit -> parse_value
+nt::lit -> nt:lit_int
+The token member of a node should not hold
+    any relevant data (beyond error diagnostics)
+Add lexeme to tokens
+Add reading input from file
+Add C backend
+
 Grammar
 -------
 Program: Stmt* EOF
