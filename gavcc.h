@@ -36,7 +36,10 @@ enum class NodeType {
     stmt_decl,
     stmt_assn,
     stmt_return,
-    op,
+    biop_plus,
+    biop_minus,
+    biop_mul,
+    biop_div,
     lit_int,
     lit_id,
 };
@@ -45,7 +48,7 @@ struct Node {
     NodeType type;
     Token token;
     vector<Node*> stmts;
-    Token id;
+    string id;
     Node* expr;
     Node* left;
     Node* right;
@@ -133,12 +136,12 @@ namespace to_string {
         else if(node->type == NodeType::stmt_decl) {
             s += indent + "stmt_decl:\n";
             indent += "    ";
-            s += indent + "name: " + node->id.id_name + "\n";
+            s += indent + "name: " + node->id + "\n";
         }
         else if(node->type == NodeType::stmt_assn) {
             s += indent + "stmt_assn:\n";
             indent += "    ";
-            s += indent + "name: " + node->id.id_name + "\n";
+            s += indent + "name: " + node->id + "\n";
             s += indent  + "expr:\n";
             indent += "    ";
             s += to_string::node(node->expr, indent);
@@ -150,7 +153,28 @@ namespace to_string {
             indent += "    ";
             s += to_string::node(node->expr, indent);
         }
-        else if(node->type == NodeType::op) {
+        else if(node->type == NodeType::biop_plus) {
+            s += indent + "op:\n";
+            indent += "    ";
+            s += indent + token_type(node->token.type) + "\n";
+            s += to_string::node(node->left, indent);
+            s += to_string::node(node->right, indent);
+        }
+        else if(node->type == NodeType::biop_minus) {
+            s += indent + "op:\n";
+            indent += "    ";
+            s += indent + token_type(node->token.type) + "\n";
+            s += to_string::node(node->left, indent);
+            s += to_string::node(node->right, indent);
+        }
+        else if(node->type == NodeType::biop_mul) {
+            s += indent + "op:\n";
+            indent += "    ";
+            s += indent + token_type(node->token.type) + "\n";
+            s += to_string::node(node->left, indent);
+            s += to_string::node(node->right, indent);
+        }
+        else if(node->type == NodeType::biop_div) {
             s += indent + "op:\n";
             indent += "    ";
             s += indent + token_type(node->token.type) + "\n";

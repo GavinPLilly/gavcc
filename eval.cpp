@@ -39,11 +39,11 @@ private:
             }
         }
         else if(cur->type == nt::stmt_decl) {
-            string id = cur->id.id_name;
+            string id = cur->id;
             table.add_symbol(id);
         }
         else if(cur->type == nt::stmt_assn) {
-            string id = cur->id.id_name;
+            string id = cur->id;
             i64 value = eval_node(cur->expr);
             table.assn_value(id, value);
         }
@@ -51,25 +51,25 @@ private:
             i64 value = eval_node(cur->expr);
             cout << value << endl;
         }
-        else if(cur->type == nt::op) {
+        else if(cur->type == nt::biop_plus) {
             i64 left = eval_node(cur->left);
             i64 right = eval_node(cur->right);
-            tt op = cur->token.type;
-            if(op == tt::plus) {
-                return left + right;
-            }
-            else if(op == tt::minus) {
-                return left - right;
-            }
-            else if(op == tt::div) {
-                return left / right;
-            }
-            else if(op == tt::star) {
-                return left * right;
-            }
-            else {
-                exit(4);
-            }
+            return left + right;
+        }
+        else if(cur->type == nt::biop_minus) {
+            i64 left = eval_node(cur->left);
+            i64 right = eval_node(cur->right);
+            return left - right;
+        }
+        else if(cur->type == nt::biop_mul) {
+            i64 left = eval_node(cur->left);
+            i64 right = eval_node(cur->right);
+            return left * right;
+        }
+        else if(cur->type == nt::biop_div) {
+            i64 left = eval_node(cur->left);
+            i64 right = eval_node(cur->right);
+            return left / right;
         }
         else if(cur->type == nt::lit_int) {
             return cur->token.ival;
@@ -78,6 +78,9 @@ private:
             string name = cur->token.id_name;
             int value = table.get_value(name);
             return value;
+        }
+        else {
+            cout << "UNRECOGNIZED NODE TYPE" << endl;
         }
         return 0;
     }

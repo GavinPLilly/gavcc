@@ -82,7 +82,7 @@ private:
         Node* decl_root = new Node;
         decl_root->type = nt::stmt_decl;
         assert_for(tt::id, cur());
-        decl_root->id = cur();
+        decl_root->id = cur().id_name;
         next();
         return decl_root;
     }
@@ -91,7 +91,7 @@ private:
         assert_for(tt::id, cur());
         Node* assn_root = new Node;
         assn_root->type = nt::stmt_assn;
-        assn_root->id = cur();
+        assn_root->id = cur().id_name;
         next();
 
         assert_for(tt::equal, cur());
@@ -115,17 +115,22 @@ private:
         Node* expr_root = parse_term();
 
         while(cur().type == tt::plus || cur().type == tt::minus) {
-            Node* op = new Node;
-            op->type = nt::op;
-            op->token = cur();
+            Node* biop = new Node;
+            biop->token = cur();
+            if(cur().type == tt::plus) {
+                biop->type = nt::biop_plus;
+            }
+            else {
+                biop->type = nt::biop_minus;
+            }
             next();
 
             assert_not_eof(cur(), "term");
             Node * right = parse_term();
 
-            op->left = expr_root;
-            op->right = right;
-            expr_root = op;
+            biop->left = expr_root;
+            biop->right = right;
+            expr_root = biop;
         }
 
         return expr_root;
@@ -135,17 +140,22 @@ private:
         Node* term_root = parse_unit();
         
         while(cur().type == tt::star || cur().type == tt::div) {
-            Node* op = new Node;
-            op->type = nt::op;
-            op->token = cur();
+            Node* biop = new Node;
+            biop->token = cur();
+            if(cur().type == tt::star) {
+                biop->type = nt::biop_mul;
+            }
+            else {
+                biop->type = nt::biop_div;
+            }
             next();
 
             assert_not_eof(cur(), "unit");
             Node* right = parse_unit();
 
-            op->left = term_root;
-            op->right = right;
-            term_root = op;
+            biop->left = term_root;
+            biop->right = right;
+            term_root = biop;
         }
 
         return term_root;
