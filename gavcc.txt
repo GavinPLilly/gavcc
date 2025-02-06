@@ -1,7 +1,5 @@
 Next Steps
 ----------
-The token member of a node should not hold
-    any relevant data (beyond error diagnostics)
 Add lexeme to tokens
 Add reading input from file
 Add C backend

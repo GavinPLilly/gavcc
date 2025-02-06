@@ -1,4 +1,3 @@
-#include <string_view>
 #include <charconv>
 
 #include "gavcc.h"
@@ -26,39 +25,47 @@ public:
                 scan_number();
             }
             else if(c == '(') {
-                tokens.push_back({ tt::lparen });
+                tokens.push_back({ .type = tt::lparen,
+                    .lexeme = std::to_string(c) });
                 next();
             }
             else if(c == ')') {
-                tokens.push_back({ tt::rparen });
+                tokens.push_back({ .type = tt::rparen,
+                    .lexeme = std::to_string(c) });
                 next();
             }
             else if(c == '+') {
-                tokens.push_back({ tt::plus });
+                tokens.push_back({ .type = tt::plus,
+                    .lexeme = std::to_string(c) });
                 next();
             }
             else if(c == '-') {
-                tokens.push_back({ tt::minus });
+                tokens.push_back({ .type = tt::minus,
+                    .lexeme = std::to_string(c) });
                 next();
             }
             else if(c == '*') {
-                tokens.push_back({ tt::star });
+                tokens.push_back({ .type = tt::star,
+                    .lexeme = std::to_string(c) });
                 next();
             }
             else if(c == '/') {
-                tokens.push_back({ tt::div });
+                tokens.push_back({ .type = tt::div,
+                    .lexeme = std::to_string(c) });
                 next();
             }
             else if(c == '=') {
-                tokens.push_back({ tt::equal });
+                tokens.push_back({ .type = tt::equal,
+                    .lexeme = std::to_string(c) });
                 next();
             }
             else if(c == ';') {
-                tokens.push_back({ tt::semicolon });
+                tokens.push_back({ .type = tt::semicolon,
+                    .lexeme = std::to_string(c) });
                 next();
             }
             else if(c == EOF) {
-                tokens.push_back({ tt::eof });
+                tokens.push_back({ .type = tt::eof });
                 next();
             }
             else {
@@ -101,22 +108,22 @@ private:
             tokens.push_back(scan_kw(id_text));
         }
         else {
-            tokens.push_back({ .type = tt::id, .id_name = id_text });
+            tokens.push_back({ .type = tt::id, .lexeme = id_text, .id = id_text });
         }
     }
 
     void scan_number() {
         int start = idx;
-        int end = idx;
+        int len = 0;
         char c = cur();
         while(is_digit(c)) {
-            ++end;
+            ++len;
             c = next();
         }
-        std::string_view number_src(chars.begin() + start, chars.begin() + end);
+        string lexeme(chars, start, len);
         int value;
-        std::from_chars(number_src.begin(), number_src.end(), value);
-        tokens.push_back({ .type = tt::integer, .ival = value });
+        std::from_chars(lexeme.data(), lexeme.data() + lexeme.size(), value);
+        tokens.push_back({ .type = tt::integer, .lexeme = lexeme, .ival = value });
     }
 
     bool is_whitespace(char c) {

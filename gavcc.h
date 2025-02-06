@@ -27,8 +27,9 @@ enum class TokenType {
 
 struct Token {
     TokenType type;
+    string lexeme;
     int64_t ival;
-    string id_name;
+    string id;
 };
 
 enum class NodeType {
@@ -48,6 +49,7 @@ struct Node {
     NodeType type;
     Token token;
     vector<Node*> stmts;
+    int64_t ival;
     string id;
     Node* expr;
     Node* left;
@@ -75,53 +77,36 @@ namespace to_string {
     }
 
     string token_type(TokenType type) {
-        string s;
         switch(type) {
             case TokenType::kw_int:
-                s += "kw:int";
-                break;
+                return "kw:int";
             case TokenType::kw_return:
-                s += "kw:return";
-                break;
+                return "kw:return";
             case TokenType::id:
-                s += "id";
-                break;
+                return "id";
             case TokenType::lparen:
-                s += "(";
-                break;
+                return "(";
             case TokenType::rparen:
-                s += ")";
-                break;
+                return ")";
             case TokenType::integer:
-                s += "int";
-                break;
+                return "<int>";
             case TokenType::plus:
-                s += '+';
-                break;
+                return "+";
             case TokenType::minus:
-                s += '-';
-                break;
+                return "-";
             case TokenType::star:
-                s += '*';
-                break;
+                return "*";
             case TokenType::div:
-                s += '/';
-                break;
+                return "/";
             case TokenType::equal:
-                s += '=';
-                break;
+                return "=";
             case TokenType::semicolon:
-                s += ';';
-                break;
+                return ";";
             case TokenType::eof:
-                s += "EOF";
-                break;
+                return "EOF";
             default:
-                s += "[UNIMP]";
-                break;
+                return "[UNIMP]";
         }
-        s += " ";
-        return s;
     }
 
     string node(Node* node, string indent) {
@@ -154,7 +139,7 @@ namespace to_string {
             s += to_string::node(node->expr, indent);
         }
         else if(node->type == NodeType::biop_plus) {
-            s += indent + "op:\n";
+            s += indent + "biop_plus:\n";
             indent += "    ";
             s += indent + token_type(node->token.type) + "\n";
             s += to_string::node(node->left, indent);
@@ -185,12 +170,35 @@ namespace to_string {
             s += indent + "lit_int: " + std::to_string(node->token.ival) + "\n";
         }
         else if(node->type == NodeType::lit_id) {
-            s += indent + "lit_id: " + to_string::token(node->token) + "\n";
+            s += indent + "lit_id: " + node->id + "\n";
         }
         return s;
     }
 
     string node_type(NodeType type) {
-        return "NOTIMP";
+        switch(type) {
+            case NodeType::prgm:
+                return "prgm";
+            case NodeType::stmt_decl:
+                return "stmt_decl";
+            case NodeType::stmt_assn:
+                return "stmt_assn";
+            case NodeType::stmt_return:
+                return "stmt_return";
+            case NodeType::biop_plus:
+                return "biop_plus";
+            case NodeType::biop_minus:
+                return "biop_minus";
+            case NodeType::biop_mul:
+                return "biop_mul";
+            case NodeType::biop_div:
+                return "biop_div";
+            case NodeType::lit_int:
+                return "lit_int";
+            case NodeType::lit_id:
+                return "lit_id";
+            default:
+                return "UNRECOG NODE TYPE";
+        }
     }
 }

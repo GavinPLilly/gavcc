@@ -82,7 +82,7 @@ private:
         Node* decl_root = new Node;
         decl_root->type = nt::stmt_decl;
         assert_for(tt::id, cur());
-        decl_root->id = cur().id_name;
+        decl_root->id = cur().id;
         next();
         return decl_root;
     }
@@ -91,7 +91,7 @@ private:
         assert_for(tt::id, cur());
         Node* assn_root = new Node;
         assn_root->type = nt::stmt_assn;
-        assn_root->id = cur().id_name;
+        assn_root->id = cur().id;
         next();
 
         assert_for(tt::equal, cur());
@@ -180,11 +180,13 @@ private:
         if(cur().type == tt::integer) {
             result->type = nt::lit_int;
             result->token = cur();
+            result->ival = cur().ival;
             next();
         }
         else if(cur().type == tt::id) {
             result->type = nt::lit_id;
             result->token = cur();
+            result->id = cur().id;
             next();
         }
         else {

@@ -75,7 +75,7 @@ private:
             return cur->token.ival;
         }
         else if(cur->type == nt::lit_id) {
-            string name = cur->token.id_name;
+            string name = cur->id;
             int value = table.get_value(name);
             return value;
         }
