@@ -1,4 +1,6 @@
 #include "gavcc.h"
+#include <filesystem>
+#include <fstream>
 #include <iostream>
 
 #include "scanner.cpp"
@@ -12,9 +14,21 @@ string node_type_string(NodeType type);
 using std::cout;
 using std::endl;
 
+std::string read_file(const std::string& filename) {
+    std::ifstream file(filename, std::ios::binary);
+    if (!file) {
+        throw std::runtime_error("Failed to open file: " + filename);
+    }
+
+    std::string content;
+    content.resize(std::filesystem::file_size(filename));
+    file.read(content.data(), content.size());
+    return content;
+}
+
 int main(int argc, char** argv)
 {
-    string s = "int a; int b; int c; a = 12; b = 12 * a; return b; return a;";
+    string s = read_file("test.cpp");
 
     cout << s << endl;
 
