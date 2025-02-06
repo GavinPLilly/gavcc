@@ -67,7 +67,7 @@ namespace to_string {
     string tokens(vector<Token> tokens) {
         string s;
         for(Token token : tokens) {
-            s += to_string::token(token);
+            s += to_string::token(token) + " ";
         }
         return s;
     }
@@ -110,69 +110,58 @@ namespace to_string {
     }
 
     string node(Node* node, string indent) {
+        NodeType type = node->type;
         string s;
-        if(node->type == NodeType::prgm) {
-            s += indent + "prgm:\n";
-            indent += "    ";
-            for(Node* stmt : node->stmts) {
-                s += to_string::node(stmt, indent);
-            }
+        s += indent + to_string::node_type(type) + ": ";
+        switch(type) {
+            case NodeType::lit_int:
+                s += std::to_string(node->token.ival) + "\n";
+                return s;
+            case NodeType::lit_id:
+                s += node->token.id + "\n";
+                return s;
         }
-        else if(node->type == NodeType::stmt_decl) {
-            s += indent + "stmt_decl:\n";
-            indent += "    ";
-            s += indent + "name: " + node->id + "\n";
+        s += "\n";
+        indent += "    ";
+        switch(type) {
+            case NodeType::prgm: 
+                for(Node* stmt : node->stmts) {
+                    s += to_string::node(stmt, indent);
+                }
+                return s;
+            case NodeType::stmt_decl:
+                s += indent + "name: " + node->id + "\n";
+                return s;
+            case NodeType::stmt_assn:
+                s += indent + "name: " + node->id + "\n";
+                s += indent  + "expr:\n";
+                indent += "    ";
+                s += to_string::node(node->expr, indent);
+                return s;
+            case NodeType::stmt_return:
+                s += indent + "expr:\n";
+                indent += "    ";
+                s += to_string::node(node->expr, indent);
+                return s;
+            case NodeType::biop_plus:
+                s += to_string::node(node->left, indent);
+                s += to_string::node(node->right, indent);
+                return s;
+            case NodeType::biop_minus:
+                s += to_string::node(node->left, indent);
+                s += to_string::node(node->right, indent);
+                return s;
+            case NodeType::biop_mul:
+                s += to_string::node(node->left, indent);
+                s += to_string::node(node->right, indent);
+                return s;
+            case NodeType::biop_div:
+                s += to_string::node(node->left, indent);
+                s += to_string::node(node->right, indent);
+                return s;
+            default:
+                return "UNRECOG NODE";
         }
-        else if(node->type == NodeType::stmt_assn) {
-            s += indent + "stmt_assn:\n";
-            indent += "    ";
-            s += indent + "name: " + node->id + "\n";
-            s += indent  + "expr:\n";
-            indent += "    ";
-            s += to_string::node(node->expr, indent);
-        }
-        else if(node->type == NodeType::stmt_return) {
-            s += indent + "stmt_return:\n";
-            indent += "    ";
-            s += indent + "expr:\n";
-            indent += "    ";
-            s += to_string::node(node->expr, indent);
-        }
-        else if(node->type == NodeType::biop_plus) {
-            s += indent + "biop_plus:\n";
-            indent += "    ";
-            s += indent + token_type(node->token.type) + "\n";
-            s += to_string::node(node->left, indent);
-            s += to_string::node(node->right, indent);
-        }
-        else if(node->type == NodeType::biop_minus) {
-            s += indent + "op:\n";
-            indent += "    ";
-            s += indent + token_type(node->token.type) + "\n";
-            s += to_string::node(node->left, indent);
-            s += to_string::node(node->right, indent);
-        }
-        else if(node->type == NodeType::biop_mul) {
-            s += indent + "op:\n";
-            indent += "    ";
-            s += indent + token_type(node->token.type) + "\n";
-            s += to_string::node(node->left, indent);
-            s += to_string::node(node->right, indent);
-        }
-        else if(node->type == NodeType::biop_div) {
-            s += indent + "op:\n";
-            indent += "    ";
-            s += indent + token_type(node->token.type) + "\n";
-            s += to_string::node(node->left, indent);
-            s += to_string::node(node->right, indent);
-        }
-        else if(node->type == NodeType::lit_int) {
-            s += indent + "lit_int: " + std::to_string(node->token.ival) + "\n";
-        }
-        else if(node->type == NodeType::lit_id) {
-            s += indent + "lit_id: " + node->id + "\n";
-        }
-        return s;
     }
 
     string node_type(NodeType type) {
