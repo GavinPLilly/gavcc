@@ -41,6 +41,8 @@ enum class NodeType {
     biop_minus,
     biop_mul,
     biop_div,
+    unary_plus,
+    unary_minus,
     lit_int,
     lit_id,
 };
@@ -159,6 +161,12 @@ namespace to_string {
                 s += to_string::node(node->left, indent);
                 s += to_string::node(node->right, indent);
                 return s;
+            case NodeType::unary_plus:
+                s += to_string::node(node->expr, indent);
+                return s;
+            case NodeType::unary_minus:
+                s += to_string::node(node->expr, indent);
+                return s;
             default:
                 return "UNRECOG NODE";
         }
@@ -182,6 +190,10 @@ namespace to_string {
                 return "biop_mul";
             case NodeType::biop_div:
                 return "biop_div";
+            case NodeType::unary_plus:
+                return "unary_plus";
+            case NodeType::unary_minus:
+                return "unary_minus";
             case NodeType::lit_int:
                 return "lit_int";
             case NodeType::lit_id:

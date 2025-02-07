@@ -1,5 +1,6 @@
 Next Steps
 ----------
+Add unary operators +, -
 Add C backend
 
 Grammar

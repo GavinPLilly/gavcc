@@ -71,6 +71,12 @@ private:
             i64 right = eval_node(cur->right);
             return left / right;
         }
+        else if(cur->type == nt::unary_plus) {
+            return eval_node(cur->expr);
+        }
+        else if(cur->type == nt::unary_minus) {
+            return -eval_node(cur->expr);
+        }
         else if(cur->type == nt::lit_int) {
             return cur->token.ival;
         }

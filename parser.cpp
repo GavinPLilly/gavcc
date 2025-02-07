@@ -162,6 +162,22 @@ private:
     }
 
     Node* parse_unit() {
+        if(cur().type == tt::plus) {
+            Node* result = new Node;
+            result->type = nt::unary_plus;
+            result->token = cur();
+            next();
+            result->expr = parse_unit();
+            return result;
+        }
+        if(cur().type == tt::minus) {
+            Node* result = new Node;
+            result->type = nt::unary_minus;
+            result->token = cur();
+            next();
+            result->expr = parse_unit();
+            return result;
+        }
         if(cur().type != tt::lparen) {
             return parse_lit();
         }
