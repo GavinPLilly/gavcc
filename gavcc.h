@@ -13,6 +13,8 @@ enum class TokenType {
     id,
     integer,
     // Grouping
+    lbrace,
+    rbrace,
     lparen,
     rparen,
     // Symbols
@@ -34,6 +36,7 @@ struct Token {
 
 enum class NodeType {
     prgm,
+    block,
     stmt_decl,
     stmt_assn,
     stmt_return,
@@ -86,6 +89,10 @@ namespace to_string {
                 return "kw:return";
             case TokenType::id:
                 return "id";
+            case TokenType::lbrace:
+                return "{";
+            case TokenType::rbrace:
+                return "}";
             case TokenType::lparen:
                 return "(";
             case TokenType::rparen:
@@ -106,9 +113,8 @@ namespace to_string {
                 return ";";
             case TokenType::eof:
                 return "EOF";
-            default:
-                return "[UNIMP]";
         }
+        return "[UNIMP]";
     }
 
     string node(Node* node, string indent) {
@@ -127,6 +133,11 @@ namespace to_string {
         indent += "    ";
         switch(type) {
             case NodeType::prgm: 
+                for(Node* stmt : node->stmts) {
+                    s += to_string::node(stmt, indent);
+                }
+                return s;
+            case NodeType::block:
                 for(Node* stmt : node->stmts) {
                     s += to_string::node(stmt, indent);
                 }
@@ -167,15 +178,16 @@ namespace to_string {
             case NodeType::unary_minus:
                 s += to_string::node(node->expr, indent);
                 return s;
-            default:
-                return "UNRECOG NODE";
         }
+        return "UNRECOG NODE";
     }
 
     string node_type(NodeType type) {
         switch(type) {
             case NodeType::prgm:
                 return "prgm";
+            case NodeType::block:
+                return "block";
             case NodeType::stmt_decl:
                 return "stmt_decl";
             case NodeType::stmt_assn:

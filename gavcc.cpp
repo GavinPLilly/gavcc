@@ -27,8 +27,7 @@ std::string read_file(const std::string& filename) {
     return content;
 }
 
-int main(int argc, char** argv)
-{
+int main() {
     string s = read_file("test.c");
 
     cout << s << endl;

@@ -7,7 +7,7 @@ using tt = TokenType;
 class Scanner {
     const std::string chars;
     std::vector<Token> tokens;
-    int idx = 0;
+    uint idx = 0;
 
 public:
     Scanner(std::string chars): chars(chars) {}
@@ -23,6 +23,16 @@ public:
             }
             else if(is_digit(c)) {
                 scan_number();
+            }
+            else if(c == '{') {
+                tokens.push_back({ .type = tt::lbrace,
+                    .lexeme = std::to_string(c) });
+                next();
+            }
+            else if(c == '}') {
+                tokens.push_back({ .type = tt::rbrace,
+                    .lexeme = std::to_string(c) });
+                next();
             }
             else if(c == '(') {
                 tokens.push_back({ .type = tt::lparen,
@@ -159,12 +169,12 @@ private:
         return false;
     }
 
-    Token scan_kw(std::string id_text) {
-        if(id_text == "int") {
-            return { .type = tt::kw_int };
+    Token scan_kw(std::string lexeme) {
+        if(lexeme == "int") {
+            return { .type = tt::kw_int, .lexeme = lexeme };
         }
-        if(id_text == "return") {
-            return { .type = tt::kw_return };
+        if(lexeme == "return") {
+            return { .type = tt::kw_return, .lexeme = lexeme };
         }
         exit(5);
     }

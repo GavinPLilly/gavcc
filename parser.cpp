@@ -7,20 +7,14 @@ using std::cout;
 using std::endl;
 
 [[noreturn]]
-void report_parse_error(string msg, Token token) {
-    cout << msg << endl;
-    exit(1);
-}
-
-[[noreturn]]
 void expected_but_found(string expected, Token found) {
-    cout << "Expected " << expected << ", but found " << to_string::token(found);
+    cout << "Expected " << expected << ", but found " << to_string::token(found) << endl;
     exit(2);
 }
 
 [[noreturn]]
 void expected_but_found(tt expected_type, Token found) {
-    cout << "Expected " << to_string::token_type(expected_type) << ", but found " << to_string::token(found);
+    cout << "Expected " << to_string::token_type(expected_type) << ", but found " << to_string::token(found) << endl;
     exit(3);
 }
 
@@ -38,7 +32,7 @@ void assert_for(tt expected_type, Token token) {
 
 class Parser {
     const vector<Token> tokens;
-    int idx = 0;
+    uint idx = 0;
 
 public:
     Parser(vector<Token> tokens): tokens(tokens) {}
@@ -58,13 +52,18 @@ public:
 private:
     Node* parse_stmt() {
         Node* result;
-        if(cur().type == tt::kw_int) {
+        tt type = cur().type;
+        if(type == tt::lbrace) {
+            result = parse_block();
+            return result;
+        }
+        else if(type == tt::kw_int) {
             result = parse_stmt_decl();
         }
-        else if(cur().type == tt::id) {
+        else if(type == tt::id) {
             result =  parse_stmt_assn();
         }
-        else if(cur().type == tt::kw_return) {
+        else if(type == tt::kw_return) {
             result =  parse_stmt_return();
         }
         else {
@@ -73,6 +72,22 @@ private:
         assert_for(tt::semicolon, cur());
         next();
         return result;
+    }
+
+    Node* parse_block() {
+        assert_for(tt::lbrace, cur());
+        next();
+
+        Node* block_root = new Node;
+        block_root->type = nt::block;
+        while(cur().type != tt::rbrace) {
+            block_root->stmts.push_back(parse_stmt());
+        }
+
+        assert_for(tt::rbrace, cur());
+        next();
+
+        return block_root;
     }
 
     Node* parse_stmt_decl() {
