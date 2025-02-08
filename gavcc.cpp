@@ -5,6 +5,7 @@
 
 #include "scanner.cpp"
 #include "parser.cpp"
+#include "semanal.cpp"
 #include "eval.cpp"
 
 string ast_node_string(Node* ast);
@@ -40,8 +41,11 @@ int main(int argc, char** argv)
     Node* ast = parser.parse();
     cout << to_string::node(ast) << endl;
 
-    Eval eval(ast);
-    eval.eval();
+    SemAnal sem_anal(ast);
+    sem_anal.sem_anal();
+
+    // Eval eval(ast);
+    // eval.eval();
 
     return 0;
 }

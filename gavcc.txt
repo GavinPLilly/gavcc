@@ -1,6 +1,10 @@
 Next Steps
 ----------
-Add unary operators +, -
+Add blocks
+Add scoping
+Add while loop
+Add comparison operators
+Add bit operators
 Add C backend
 
 Grammar
