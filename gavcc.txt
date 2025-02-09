@@ -1,11 +1,11 @@
 Next Steps
 ----------
-Convert assn_stmt to assn_expr
-Add grouping (for parens) node/node type
+Add comparison operators
+Add assn_expr in addition to assn_stmt
+Add if statement
+Convert all uses of token->id to token lexeme
 Add line and column numbers to tokens
 Add assignment with declaration
-Add while loop
-Add comparison operators
 Add bit operators
 Prefix all expr node types with expr_, like statments
 
