@@ -13,16 +13,21 @@ using tt = TokenType;
 
 void sem_anal_error(string msg);
 
-class DeclSet {
-    set<string> decls;
+class ScopedDeclSet {
+    vector<set<string>> scopes;
 public:
+    ScopedDeclSet() {
+        scopes.push_back({});
+    }
     void add_decl(string sym);
     bool is_decled(string sym);
+    void add_scope();
+    void close_scope();
 };
 
 class SemAnal {
     Node* ast;
-    DeclSet decl_set;
+    ScopedDeclSet scopes;
 
 public:
 
@@ -36,20 +41,27 @@ private:
     void sem_anal_node(Node* cur) {
         nt type = cur->type;
         if(type == nt::prgm) {
-            for(const auto stmt : cur->stmts) {
+            for(Node* stmt : cur->stmts) {
                 sem_anal_node(stmt);
             }
         }
+        else if(type == nt::block) {
+            scopes.add_scope();
+            for(Node * stmt : cur->stmts) {
+                sem_anal_node(stmt);
+            }
+            scopes.close_scope();
+        }
         else if(type == nt::stmt_decl) {
             string sym = cur->id;
-            if(decl_set.is_decled(sym)) {
+            if(scopes.is_decled(sym)) {
                 sem_anal_error(std::format("Tried to declare, but symbol '{}' is already declared", sym));
             }
-            decl_set.add_decl(sym);
+            scopes.add_decl(sym);
         }
         else if(type == nt::stmt_assn) {
             string sym = cur->id;
-            if(!decl_set.is_decled(sym)) {
+            if(!scopes.is_decled(sym)) {
                 sem_anal_error(std::format("Tried to assign value, but symbol '{}' has not been declared", sym));
             }
             sem_anal_node(cur->expr);
@@ -73,7 +85,7 @@ private:
         }
         else if(type == nt::lit_id) {
             string sym = cur->id;
-            if(!decl_set.is_decled(sym)) {
+            if(!scopes.is_decled(sym)) {
                 sem_anal_error(std::format("Tried to use symbol, but symbol '{}' has not been declared", sym));
             }
         }
@@ -86,10 +98,27 @@ void sem_anal_error(string msg) {
     exit(6);
 }
 
-void DeclSet::add_decl(string sym) {
-    decls.insert(sym);
+void ScopedDeclSet::add_decl(string sym) {
+    scopes.back().insert(sym);
 }
 
-bool DeclSet::is_decled(string sym) {
-    return decls.contains(sym);
+bool ScopedDeclSet::is_decled(string sym) {
+    for(auto it = scopes.rbegin(); it != scopes.rend(); ++it) {
+        if(it->contains(sym)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void ScopedDeclSet::add_scope() {
+    scopes.push_back({});
+}
+
+void ScopedDeclSet::close_scope() {
+    if(scopes.size() == 1) {
+        cout << "Error: tried to destroy global scope" << endl;
+        exit(7);
+    }
+    scopes.pop_back();
 }

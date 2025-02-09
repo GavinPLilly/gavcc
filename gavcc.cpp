@@ -43,8 +43,8 @@ int main() {
     SemAnal sem_anal(ast);
     sem_anal.sem_anal();
 
-    // Eval eval(ast);
-    // eval.eval();
+    Eval eval(ast);
+    eval.eval();
 
     return 0;
 }

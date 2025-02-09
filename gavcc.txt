@@ -1,6 +1,7 @@
 Next Steps
 ----------
 Add line and column numbers to tokens
+
 Add blocks
 Add scoping
 Add assignment with declaration
