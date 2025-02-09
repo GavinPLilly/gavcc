@@ -9,6 +9,7 @@ enum class TokenType {
     // Keywords
     kw_int,
     kw_return,
+    kw_while,
     // Literals
     id,
     integer,
@@ -37,9 +38,11 @@ struct Token {
 enum class NodeType {
     prgm,
     block,
+    stmt_while,
     stmt_decl,
     stmt_assn,
     stmt_return,
+    paren_group,
     biop_plus,
     biop_minus,
     biop_mul,
@@ -54,6 +57,7 @@ struct Node {
     NodeType type;
     Token token;
     vector<Node*> stmts;
+    Node* body;
     int64_t ival;
     string id;
     Node* expr;
@@ -87,6 +91,8 @@ namespace to_string {
                 return "kw:int";
             case TokenType::kw_return:
                 return "kw:return";
+            case TokenType::kw_while:
+                return "kw:while";
             case TokenType::id:
                 return "id";
             case TokenType::lbrace:
@@ -156,6 +162,16 @@ namespace to_string {
                 indent += "    ";
                 s += to_string::node(node->expr, indent);
                 return s;
+            case NodeType::stmt_while:
+                s += indent + "while:\n";
+                indent += "    ";
+                s += to_string::node(node->expr, indent);
+                s += indent + "stmts:\n";
+                s += to_string::node(node->body, indent);
+                return s;
+            case NodeType::paren_group:
+                s += to_string::node(node->expr, indent);
+                return s;
             case NodeType::biop_plus:
                 s += to_string::node(node->left, indent);
                 s += to_string::node(node->right, indent);
@@ -189,29 +205,32 @@ namespace to_string {
             case NodeType::block:
                 return "block";
             case NodeType::stmt_decl:
-                return "stmt_decl";
+                return "stmt:decl";
             case NodeType::stmt_assn:
-                return "stmt_assn";
+                return "stmt:assn";
             case NodeType::stmt_return:
-                return "stmt_return";
+                return "stmt:return";
+            case NodeType::stmt_while:
+                return "stmt:while";
+            case NodeType::paren_group:
+                return "paren_group";
             case NodeType::biop_plus:
                 return "biop_plus";
             case NodeType::biop_minus:
-                return "biop_minus";
+                return "biop:minus";
             case NodeType::biop_mul:
-                return "biop_mul";
+                return "biop:mul";
             case NodeType::biop_div:
-                return "biop_div";
+                return "biop:div";
             case NodeType::unary_plus:
-                return "unary_plus";
+                return "unary:plus";
             case NodeType::unary_minus:
-                return "unary_minus";
+                return "unary:minus";
             case NodeType::lit_int:
-                return "lit_int";
+                return "lit:int";
             case NodeType::lit_id:
-                return "lit_id";
-            default:
-                return "UNRECOG NODE TYPE";
+                return "lit:id";
         }
+        return "UNRECOG NODE TYPE";
     }
 }

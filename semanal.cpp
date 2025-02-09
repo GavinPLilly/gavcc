@@ -47,10 +47,14 @@ private:
         }
         else if(type == nt::block) {
             scopes.add_scope();
-            for(Node * stmt : cur->stmts) {
+            for(Node* stmt : cur->stmts) {
                 sem_anal_node(stmt);
             }
             scopes.close_scope();
+        }
+        else if(type == nt::stmt_while) {
+            sem_anal_node(cur->expr);
+            sem_anal_node(cur->body);
         }
         else if(type == nt::stmt_decl) {
             string sym = cur->id;
@@ -67,6 +71,9 @@ private:
             sem_anal_node(cur->expr);
         }
         else if(type == nt::stmt_return) {
+            sem_anal_node(cur->expr);
+        }
+        else if(type == nt::paren_group) {
             sem_anal_node(cur->expr);
         }
         else if(type == nt::biop_plus

@@ -160,10 +160,9 @@ private:
     }
 
     bool is_kw(std::string id_text) {
-        if(id_text == "int") {
-            return true;
-        }
-        if(id_text == "return") {
+        if(id_text == "int"
+            || id_text == "return"
+            || id_text == "while") {
             return true;
         }
         return false;
@@ -175,6 +174,9 @@ private:
         }
         if(lexeme == "return") {
             return { .type = tt::kw_return, .lexeme = lexeme };
+        }
+        if(lexeme == "while") {
+            return { .type = tt::kw_while, .lexeme = lexeme };
         }
         exit(5);
     }

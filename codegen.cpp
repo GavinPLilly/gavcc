@@ -33,6 +33,21 @@ private:
             dec_indent();
             writeln("}");
         }
+        else if(type == nt::stmt_while) {
+            write("while(");
+            code_gen_node(cur->expr);
+            write(")");
+            if(cur->body->type == nt::block) {
+                write(" ");
+                code_gen_node(cur->body);
+            }
+            else {
+                writeln("");
+                inc_indent();
+                code_gen_node(cur->body);
+                dec_indent();
+            }
+        }
         else if(type == nt::stmt_decl) {
             writeln(format("int {};", cur->id));
         }
@@ -45,6 +60,11 @@ private:
             write("return ");
             code_gen_node(cur->expr);
             writeln(";");
+        }
+        else if(type == nt::paren_group) {
+            write("(");
+            code_gen_node(cur->expr);
+            write(")");
         }
         else if(type == nt::biop_plus) {
             code_gen_node(cur->left);

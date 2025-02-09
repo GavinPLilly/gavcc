@@ -54,24 +54,30 @@ private:
         Node* result;
         tt type = cur().type;
         if(type == tt::lbrace) {
-            result = parse_block();
-            return result;
+            return parse_block();
+        }
+        else if(type == tt::kw_while) {
+            return parse_while();
         }
         else if(type == tt::kw_int) {
             result = parse_stmt_decl();
+            assert_for(tt::semicolon, cur());
+            next();
+            return result;
         }
         else if(type == tt::id) {
             result =  parse_stmt_assn();
+            assert_for(tt::semicolon, cur());
+            next();
+            return result;
         }
         else if(type == tt::kw_return) {
             result =  parse_stmt_return();
+            assert_for(tt::semicolon, cur());
+            next();
+            return result;
         }
-        else {
-            expected_but_found("Stmt", cur());
-        }
-        assert_for(tt::semicolon, cur());
-        next();
-        return result;
+        expected_but_found("Stmt", cur());
     }
 
     Node* parse_block() {
@@ -88,6 +94,24 @@ private:
         next();
 
         return block_root;
+    }
+
+    Node* parse_while() {
+        assert_for(tt::kw_while, cur());
+        next();
+        assert_for(tt::lparen, cur());
+        next();
+
+        Node* while_root = new Node;
+        while_root->type = nt::stmt_while;
+        while_root->expr = parse_expr();
+
+        assert_for(tt::rparen, cur());
+        next();
+
+        while_root->body = parse_stmt();
+
+        return while_root;
     }
 
     Node* parse_stmt_decl() {
@@ -198,7 +222,9 @@ private:
         }
 
         next();
-        Node* result = parse_expr();
+        Node* result = new Node;
+        result->type = nt::paren_group;
+        result->expr = parse_expr();
 
         assert_for(tt::rparen, cur());
         next();

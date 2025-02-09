@@ -52,6 +52,11 @@ private:
             }
             scopes.close_scope();
         }
+        else if(type == nt::stmt_while) {
+            while(eval_node(cur->expr)) {
+                eval_node(cur->body);
+            }
+        }
         else if(type == nt::stmt_decl) {
             string id = cur->id;
             scopes.add_symbol(id);
@@ -64,6 +69,9 @@ private:
         else if(type == nt::stmt_return) {
             i64 value = eval_node(cur->expr);
             cout << value << endl;
+        }
+        else if(type == nt::paren_group) {
+            return eval_node(cur->expr);
         }
         else if(type == nt::biop_plus) {
             i64 left = eval_node(cur->left);
