@@ -6,6 +6,7 @@
 #include "scanner.cpp"
 #include "parser.cpp"
 #include "semanal.cpp"
+#include "codegen.cpp"
 #include "eval.cpp"
 
 string ast_node_string(Node* ast);
@@ -42,6 +43,10 @@ int main() {
 
     SemAnal sem_anal(ast);
     sem_anal.sem_anal();
+
+    CodeGen code_gen(ast);
+    string out = code_gen.code_gen();
+    cout << out;
 
     Eval eval(ast);
     eval.eval();

@@ -1,4 +1,4 @@
-files := gavcc.h gavcc.cpp scanner.cpp parser.cpp semanal.cpp eval.cpp
+files := gavcc.h gavcc.cpp scanner.cpp parser.cpp semanal.cpp codegen.cpp eval.cpp
 exec := gavcc.o
 
 $(exec): $(files)
